@@ -2,13 +2,15 @@ package labs.pm.data;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.util.Objects;
 
 /**
  * {@code Product} represents the objects of separate product with price and discount {@link #DISCOUNT_RATE}  applied
  * @author mserge
  * @version 1
  */
-public class Product {
+public abstract class Product {
     /**
      * Discount rate currently constant {@link BigDecimal}
      */
@@ -23,19 +25,11 @@ public class Product {
     private final BigDecimal price;
     private final Rating rating;
 
-    public Product(int id, String name, BigDecimal price, Rating rating) {
+    Product(int id, String name, BigDecimal price, Rating rating) {
         this.id = id;
         this.name = name;
         this.price = price;
         this.rating = rating;
-    }
-
-    public Product(int id, String name, BigDecimal price) {
-        this(id, name, price, Rating.NOT_RATED);
-    }
-
-    public Product() {
-        this(0, "no name", BigDecimal.ZERO);
     }
 
     @Override
@@ -46,6 +40,7 @@ public class Product {
                 ", price=" + price +
                 ", getDiscount=" + getDiscount() +
                 ", rating=" + rating.getStars() +
+                ", expiring=" + this.getBestBefore() +
                 '}';
     }
 
@@ -84,7 +79,27 @@ public class Product {
         return rating;
     }
 
-    public Product applyRating(Rating newRating){
-        return new Product(id, name, price, newRating);
+    public abstract Product applyRating(Rating newRating);
+//    {
+//        return new Product(id, name, price, newRating);
+//    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o instanceof Product) {
+            Product product = (Product) o;
+            return getId() == product.getId() && Objects.equals(getName(), product.getName());
+        } else
+            return false;
+    }
+
+    public LocalDate getBestBefore() {
+        return LocalDate.now();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId());
     }
 }
