@@ -10,7 +10,7 @@ import java.util.Objects;
  * @author mserge
  * @version 1
  */
-public abstract class Product {
+public abstract class Product implements Rateable<Product>{
     /**
      * Discount rate currently constant {@link BigDecimal}
      */
@@ -48,25 +48,13 @@ public abstract class Product {
         return name;
     }
 
-//    public void setName(final String name) {
-//        this.name = name;
-//    }
-
     public BigDecimal getPrice() {
         return price;
     }
 
-//    public void setPrice(final BigDecimal price) {
-//        this.price = price;
-//    }
-
     public int getId() {
         return id;
     }
-
-//    public void setId(final int id) {
-//        this.id = id;
-//    }
 
     /**
      * @return amount of discount applied to price
@@ -75,14 +63,12 @@ public abstract class Product {
         return this.price.multiply(DISCOUNT_RATE).setScale(2, RoundingMode.HALF_UP);
     }
 
+    @Override
     public Rating getRating() {
         return rating;
     }
 
     public abstract Product applyRating(Rating newRating);
-//    {
-//        return new Product(id, name, price, newRating);
-//    }
 
     @Override
     public boolean equals(Object o) {
