@@ -6,14 +6,10 @@ import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
-import java.util.Arrays;
-import java.util.Locale;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class ProductManager {
-
-    private Product product;
-    private Review[] reviews = new Review[5];
+    private Map<Product, List<Review>> products = new HashMap<>();
     private Locale locale;
     private ResourceBundle resourceBundle;
     private DateTimeFormatter dateTimeFormatter;
@@ -26,20 +22,24 @@ public class ProductManager {
         numberFormat = NumberFormat.getCurrencyInstance(locale);
     }
 
-    public void printProductReport(){
-        StringBuilder txt = new StringBuilder();
-        txt.append(
-            MessageFormat.format(
-                resourceBundle.getString("product"),
-                product.getName(),
-                numberFormat.format(product.getPrice()),
-                product.getRating().getStars(),
-                dateTimeFormatter.format(product.getBestBefore())
-                ));
-        txt.append("\n");
 
+    public void printProductReport(int id){
+        printProductReport(findProduct(id));
+    }
+    public void printProductReport(Product product){
+            StringBuilder txt = new StringBuilder();
+            txt.append(
+                MessageFormat.format(
+                    resourceBundle.getString("product"),
+                    product.getName(),
+                    numberFormat.format(product.getPrice()),
+                    product.getRating().getStars(),
+                    dateTimeFormatter.format(product.getBestBefore())
+                    ));
+            txt.append("\n");
+            List<Review> reviews = products.get(product);
+            Collections.sort(reviews);
             for( Review review: reviews){
-                if (review == null) {break;}
                     txt.append(
                             MessageFormat.format(
                                     resourceBundle.getString("review"),
@@ -48,38 +48,50 @@ public class ProductManager {
                             ));
                     txt.append("\n");
             }
-        if(reviews[0] == null){
-            txt.append(resourceBundle.getString("no.reviews"));
-            txt.append("\n");
-        }
+            if(reviews.isEmpty()){
+                txt.append(resourceBundle.getString("no.reviews"));
+                txt.append("\n");
+            }
 
-        System.out.println(txt);
+            System.out.println(txt);
     }
     public  Product createProduct(int id, String name, BigDecimal price, Rating rating, LocalDate bestBefore){
-        product = new Food(id, name, price, rating, bestBefore);
+        Product product = new Food(id, name, price, rating, bestBefore);
+        products.putIfAbsent(product, new ArrayList<>());
         return product;
     }
     public  Product createProduct(int id, String name, BigDecimal price, Rating rating ){
-        product = new Drink(id, name, price, rating);
+        Product product = new Drink(id, name, price, rating);
+        products.putIfAbsent(product, new ArrayList<>());
         return product;
     }
 
+    public Product reviewProduct(int id, Rating rating, String comments){
+        return  reviewProduct(findProduct(id), rating, comments);
+    }
+
     public Product reviewProduct(Product oldProduct, Rating rating, String comments){
-        if(reviews[reviews.length-1] != null){
-            reviews = Arrays.copyOf(reviews, reviews.length+5);
+        List<Review> reviews = products.get(oldProduct);
+        products.remove(oldProduct);
+        reviews.add(new Review(rating, comments));
+        int sum = 0;
+        for(Review review : reviews){
+            sum += review.getRating().ordinal();
         }
-        int sum = 0, i= 0;
-        boolean reviewed = false;
-        while (i < reviews.length &&  !reviewed){
-            if(reviews[i] == null){
-                reviews[i] = new Review(rating, comments);
-                reviewed = true;
-            }
-            sum += reviews[i].getRating().ordinal();
-            i++;
-        }
-        product = oldProduct.applyRating(Rateable.convert(Math.round((float)sum/i)));
+        Product product = oldProduct.applyRating(Rateable.convert(Math.round((float)sum/reviews.size())));
+        products.put(product, reviews);
         return product;
+    }
+    public Product findProduct(int id){
+        Product result = null;
+        for (Product product :
+                products.keySet()) {
+            if(product.getId() == id) {
+                result = product;
+                break;
+            };
+        }
+        return result;
     }
 }
 
