@@ -89,6 +89,10 @@ public class ProductManager {
             txt.append(formatter.getText("no.reviews"));
             txt.append("\n");
         }
+        print(txt);
+    }
+
+    private void print(StringBuilder txt) {
         PrintWriter printWriter = new PrintWriter(
                 new OutputStreamWriter(System.out, StandardCharsets.UTF_8),
                 true);
@@ -98,7 +102,17 @@ public class ProductManager {
     public void printProductReport(int id) {
         printProductReport(findProduct(id));
     }
-
+    public void printProducts(Comparator<Product> sorter){
+        List<Product> productList = new ArrayList<>(this.products.keySet());
+        productList.sort(sorter);
+        StringBuilder txt = new StringBuilder();
+        for (Product product :
+                productList) {
+            txt.append(formatter.formatProduct(product));
+            txt.append("\n");
+        }
+        print(txt);
+    }
     public Product createProduct(int id, String name, BigDecimal price, Rating rating, LocalDate bestBefore) {
         Product product = new Food(id, name, price, rating, bestBefore);
         products.putIfAbsent(product, new ArrayList<>());
