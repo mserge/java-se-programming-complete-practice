@@ -3,7 +3,6 @@ package labs.pm.app;
 import labs.pm.data.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.Locale;
 
 /**
@@ -25,13 +24,13 @@ public class Shop {
         pm.reviewProduct(101, Rating.ONE_STAR, "Yoo hot cup of tea");
         pm.reviewProduct(101, Rating.TWO_STAR, "2 stars only");
         pm.printProductReport(101);
-
-        pm.createProduct(102, "Cofee", BigDecimal.valueOf(1.99), Rating.NOT_RATED);
+        pm.changeLocale("ru-RU");
+        pm.createProduct(102, "Coffee", BigDecimal.valueOf(1.99), Rating.NOT_RATED);
         pm.printProductReport(102);
-        pm.reviewProduct(102, Rating.FOUR_STAR, "Nice hot cup of cofee");
-        pm.reviewProduct(102, Rating.FOUR_STAR, "Too cold cup of cofee");
+        pm.reviewProduct(102, Rating.FOUR_STAR, "Nice hot cup of coffee");
+        pm.reviewProduct(102, Rating.FOUR_STAR, "Too cold cup of coffee");
         pm.reviewProduct(102, Rating.FOUR_STAR, "3 comment");
-        pm.reviewProduct(102, Rating.ONE_STAR, "Yoo hot cup of cofee");
+        pm.reviewProduct(102, Rating.ONE_STAR, "Yoo hot cup of coffee");
         pm.reviewProduct(102, Rating.FOUR_STAR, "2 stars only");
         pm.printProductReport(102);
 
