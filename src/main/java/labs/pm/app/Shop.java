@@ -35,10 +35,11 @@ public class Shop {
         pm.reviewProduct(102, Rating.FOUR_STAR, "2 stars only");
         pm.createProduct(103, "Machiato", BigDecimal.valueOf(0.99), Rating.TWO_STAR);
 
-//        pm.printProductReport(102);
+        pm.printProductReport(102);
         Comparator<Product> byRating =(o1, o2) -> o2.getPrice().compareTo(o1.getPrice());
         Comparator<Product> byPrice =(o1, o2) -> o2.getRating().ordinal() - o1.getRating().ordinal();
         pm.printProducts(byRating.thenComparing(byPrice.reversed()));
+        pm.printProducts((p) -> p.getPrice().floatValue() < 1.0, byRating.thenComparing(byPrice.reversed()));
 
     }
 }
