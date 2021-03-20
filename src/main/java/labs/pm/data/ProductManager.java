@@ -120,6 +120,16 @@ public class ProductManager {
                 forEach(p -> txt.append(formatter.formatProduct(p) + "\n"));
         print(txt);
     }
+    public Map<String, String> getDiscounts(){
+        return products.keySet().stream().collect(
+            Collectors.groupingBy(
+                    p -> p.getRating().getStars(), 
+                    Collectors.collectingAndThen(
+                        Collectors.summingDouble(p -> p.getDiscount().doubleValue()), 
+                        number -> formatter.numberFormat.format(number)
+                        )
+            ));
+    }   
 
     public Product createProduct(int id, String name, BigDecimal price, Rating rating, LocalDate bestBefore) {
         Product product = new Food(id, name, price, rating, bestBefore);
