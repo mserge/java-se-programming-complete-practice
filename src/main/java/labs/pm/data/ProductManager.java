@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.text.NumberFormat;
+import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
@@ -18,6 +19,10 @@ import java.util.stream.Collectors;
 public class ProductManager {
     public static final Logger logger = Logger.getLogger(ProductManager.class.getName());
     private Map<Product, List<Review>> products = new HashMap<>();
+    private ResourceBundle config = ResourceBundle.getBundle("config");
+    private MessageFormat productFormat = new MessageFormat(config.getString("product.data.format"));
+    private MessageFormat reviewFormat = new MessageFormat(config.getString("review.data.format"));
+
     private static Map<String, ResourceFormatter> formatters =
             Map.of(
                     "en-GB", new ResourceFormatter(Locale.UK),
@@ -127,7 +132,16 @@ public class ProductManager {
                 forEach(p -> txt.append(formatter.formatProduct(p) + "\n"));
         print(txt);
     }
-
+    public void parseReview(String text){
+        try {
+            Object[] objects = reviewFormat.parse(text);
+            reviewProduct(Integer.parseInt((String) objects[0]),
+                    Rateable.convert(Integer.parseInt((String) objects[1])),
+                    (String) objects[2]);
+        } catch (ParseException | NumberFormatException e) {
+            logger.log(Level.WARNING, "Error parsing review: "+ e.getMessage());
+        }
+    }
     public Map<String, String> getDiscounts() {
         return products.keySet().stream().collect(
                 Collectors.groupingBy(
