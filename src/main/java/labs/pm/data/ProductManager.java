@@ -7,6 +7,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
@@ -139,7 +140,31 @@ public class ProductManager {
                     Rateable.convert(Integer.parseInt((String) objects[1])),
                     (String) objects[2]);
         } catch (ParseException | NumberFormatException e) {
-            logger.log(Level.WARNING, "Error parsing review: "+ e.getMessage());
+            logger.log(Level.WARNING, "Error parsing review: "+ text,  e);
+        }
+    }
+    public void parseProduct(String text){
+        try {
+            Object[] objects = productFormat.parse(text);
+            String type = (String) objects[0];
+            int id = Integer.parseInt((String) objects[1]);
+            String name = (String) objects[2];
+            BigDecimal price  = BigDecimal.valueOf(Double.parseDouble((String) objects[3]));
+            Rating rating = Rateable.convert(Integer.parseInt((String) objects[4]));
+            switch (type){
+                case "D":
+                    createProduct(id, name, price, rating);
+                    break;
+                case "F":
+                    LocalDate bestBefore = LocalDate.parse((String) objects[5]);
+                    createProduct(id, name, price, rating, bestBefore);
+                    break;
+                default:
+                    logger.log(Level.WARNING, "Error parsing product: "+ text);
+                    return;
+            }
+        } catch (ParseException | NumberFormatException | DateTimeException e) {
+            logger.log(Level.WARNING, "Error parsing product: "+ text,  e);
         }
     }
     public Map<String, String> getDiscounts() {

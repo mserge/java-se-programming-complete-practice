@@ -18,9 +18,14 @@ public class Shop {
     public static void main(String[] args) {
         ProductManager pm = new ProductManager(Locale.UK);
         pm.createProduct(101, "Tea", BigDecimal.valueOf(1.99), Rating.NOT_RATED);
-//        pm.printProductReport(101);
+        pm.parseProduct("D,1001,Tea,1.99,0,2020-10-20");
+        pm.parseProduct("F,1002,Food,3.99,0,2020-10-xx"); // SHOULD error
+        pm.parseProduct("F,1003,Food 3,3.99,0,2021-10-10");
+        System.out.println("1001:");
+       pm.printProductReport(1001);
         pm.parseReview("101,3,Some review");
         pm.parseReview("10,3,Some review");
+        pm.parseReview("1003,3,Some food review");
         pm.parseReview("x,3,Some review"); // cause WARNING
         pm.parseReview("3,Some review"); //cause WARNING
 //        pm.reviewProduct(10, Rating.FOUR_STAR, "Nice hot cup of tea");
