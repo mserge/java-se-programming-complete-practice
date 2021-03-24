@@ -17,10 +17,15 @@ public class Shop {
      */
     public static void main(String[] args) {
         ProductManager pm = new ProductManager(Locale.UK);
-        pm.printProductReport(101);
+
+
         Comparator<Product> byRating =(o1, o2) -> o2.getPrice().compareTo(o1.getPrice());
         Comparator<Product> byPrice =(o1, o2) -> o2.getRating().ordinal() - o1.getRating().ordinal();
         pm.printProducts(byRating.thenComparing(byPrice.reversed()));
+        pm.dumpData();
+        pm.restoreData();
+        pm.printProducts(byRating.thenComparing(byPrice.reversed()));
+
         pm.printProducts((p) -> p.getPrice().floatValue() < 1.0, byRating.thenComparing(byPrice.reversed()));
         // pm.createProduct(105, "Cons", 10, Rating.TWO_STAR,
         pm.getDiscounts().forEach(

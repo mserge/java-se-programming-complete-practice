@@ -1,8 +1,6 @@
 package labs.pm.data;
 
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
+import java.io.*;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -12,6 +10,7 @@ import java.text.MessageFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.time.DateTimeException;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
@@ -272,6 +271,44 @@ public class ProductManager {
                 .filter(p -> p.getId() == id)
                 .findFirst()
                 .orElseThrow(() -> new ProductManagerException("Product with id " + id + " not found"));
+    }
+
+    public void dumpData(){
+
+        try {
+            if(Files.notExists(tempFolder)) {
+                Files.createDirectory(tempFolder);
+            }
+            Path tmpFile = tempFolder.resolve(MessageFormat.format(config.getString("temp.file"), Instant.now().toEpochMilli()));
+
+            try (ObjectOutputStream out =  new ObjectOutputStream(Files.newOutputStream(tmpFile, StandardOpenOption.CREATE))){
+                out.writeObject(products);
+                products = new HashMap<>();
+            }
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Error dumping " + e.getMessage(), e);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public void restoreData(){
+        try {
+
+            Path tmpFile = Files.list(tempFolder)
+                    .filter(file -> file.getFileName().toString().endsWith("tmp"))
+                    .findFirst().orElseThrow();
+            try (ObjectInputStream in =  new ObjectInputStream(Files.newInputStream(tmpFile, StandardOpenOption.DELETE_ON_CLOSE))){
+                Object o = in.readObject();
+                if(o instanceof  HashMap) {
+                    products = (HashMap) o;
+                } else {
+                    logger.log(Level.SEVERE, "Invalid type of tmp file");
+                }
+            }
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Error loading  " + e.getMessage(), e);
+        }
+
     }
 
 }

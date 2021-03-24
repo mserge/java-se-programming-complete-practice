@@ -1,6 +1,8 @@
 package labs.pm.data;
 
-public class Review implements Comparable<Review>{
+import java.io.Serializable;
+
+public class Review implements Comparable<Review>, Serializable {
     private Rating rating;
     private String comments;
 
