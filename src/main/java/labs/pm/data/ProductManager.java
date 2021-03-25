@@ -104,8 +104,8 @@ public class ProductManager {
                 true) ){
             txt.append(formatter.formatProduct(product));
             txt.append(System.lineSeparator());
-            List<Review> reviews = products.get(product);
-            Collections.sort(reviews);
+            List<Review> reviews = products.get(product).stream().sorted().collect(Collectors.toList());
+           // Collections.sort(reviews); // FIXED: This is modification of shared review!!!
 
             if (reviews.isEmpty()) {
                 txt.append(formatter.getText("no.reviews"));
