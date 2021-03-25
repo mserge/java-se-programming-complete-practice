@@ -37,19 +37,13 @@ public class ProductManager {
                     "ru-RU", new ResourceFormatter(new Locale("ru", "RU")),
                     "fr-FR", new ResourceFormatter(Locale.FRANCE)
             );
-    private ResourceFormatter formatter;
-
-    public ProductManager(String localetag) {
-        changeLocale(localetag);
+    private static final ProductManager pm = new ProductManager();
+    private ProductManager() {
         loadAllData();
     }
 
-    public ProductManager(Locale locale) {
-        this(locale.toLanguageTag());
-    }
-
-    public void changeLocale(String localeTag) {
-        formatter = formatters.getOrDefault(localeTag, formatters.get("en-GB"));
+    public static ProductManager getInstance(){
+        return pm;
     }
 
     public static Set<String> getSupportedLocales() {
@@ -94,7 +88,9 @@ public class ProductManager {
         }
     }
 
-    public void printProductReport(Product product) throws IOException {
+    public void printProductReport(Product product, String languageTag) throws IOException {
+        ResourceFormatter formatter= formatters.getOrDefault(languageTag, formatters.get("en-GB"));
+
         // StringBuilder txt = new StringBuilder();
         Path productFile = reportsFolder.resolve(MessageFormat.format(config.getString("report.file"), product.getId()));
 
@@ -125,9 +121,9 @@ public class ProductManager {
         printWriter.println(txt);
     }
 
-    public void printProductReport(int id) {
+    public void printProductReport(int id, String languageTag) {
         try {
-            printProductReport(findProduct(id));
+            printProductReport(findProduct(id), languageTag);
         } catch (ProductManagerException e) {
             logger.log(Level.INFO, e.getMessage());
         } catch (IOException e) {
@@ -135,11 +131,12 @@ public class ProductManager {
         }
     }
 
-    public void printProducts(Comparator<Product> sorter) {
-        printProducts(t -> true, sorter);
+    public void printProducts(Comparator<Product> sorter,String languageTag ) {
+        printProducts(t -> true, sorter, languageTag);
     }
 
-    public void printProducts(Predicate<Product> filter, Comparator<Product> sorter) {
+    public void printProducts(Predicate<Product> filter, Comparator<Product> sorter, String languageTag) {
+        ResourceFormatter formatter= formatters.getOrDefault(languageTag, formatters.get("en-GB"));
 
         StringBuilder txt = new StringBuilder();
         products.keySet().stream().
@@ -224,7 +221,9 @@ public class ProductManager {
            logger.log(Level.SEVERE, "Error loading data " +  e.getMessage(), e);
         }
     }
-    public Map<String, String> getDiscounts() {
+
+    public Map<String, String> getDiscounts(String languageTag) {
+        ResourceFormatter formatter= formatters.getOrDefault(languageTag, formatters.get("en-GB"));
         return products.keySet().stream().collect(
                 Collectors.groupingBy(
                         p -> p.getRating().getStars(),
